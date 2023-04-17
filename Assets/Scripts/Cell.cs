@@ -9,6 +9,8 @@ namespace VargheseJoshua.Lab6
 
         public int entropy = 5;
 
+        private GameObject tile;
+
         [SerializeField]
         public Globals.superpositions currentState = Globals.superpositions.super;
         //void Awake()
@@ -21,6 +23,7 @@ namespace VargheseJoshua.Lab6
                 sp[i].isPossible = true;
                 sp[i].Name = (Globals.superpositions)i;
             }
+            tile = this.gameObject;
 
         }
 
@@ -36,6 +39,8 @@ namespace VargheseJoshua.Lab6
             Debug.Log(rand);
             currentState = choose[rand].Name;
             entropy = 6;
+
+            tile.GetComponent<Renderer>().material.SetColor("_Color", Globals.Colors[currentState]);
         }
 
         public void UpdateEntropy()
