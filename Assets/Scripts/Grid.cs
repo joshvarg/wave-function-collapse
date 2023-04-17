@@ -8,22 +8,23 @@ namespace VargheseJoshua.Lab6
 {
     public class Grid : MonoBehaviour
     {
-        [SerializeField] int rows = 2;
-        [SerializeField] int columns = 2;
+        [SerializeField] public int rows = 3;
+        [SerializeField] public int columns = 2;
         public Cell[,] cellgrid;
         // Start is called before the first frame update
         //void Start()
         public void Init()
         {
-            cellgrid = new Cell[rows, columns];
+            cellgrid = new Cell[columns, rows];
             // Initialize left to right, row by row.
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < columns; i++)
             {
-                for (int j = 0; j < columns; j++)
+                for (int j = 0; j < rows; j++)
                 {
                     var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     c.transform.position = new Vector3(i, 0, j);
                     var tile = c.AddComponent<Cell>();
+                    tile.position = (i, j);
                     tile.Init();
                     cellgrid[i, j] = tile;
                 }

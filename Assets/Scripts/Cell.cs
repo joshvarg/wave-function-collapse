@@ -11,6 +11,13 @@ namespace VargheseJoshua.Lab6
 
         private GameObject tile;
 
+        public (int x, int z) position;
+
+        public Cell north;
+        public Cell south;
+        public Cell west;
+        public Cell east;
+
         [SerializeField]
         public Globals.superpositions currentState = Globals.superpositions.super;
         //void Awake()
@@ -24,7 +31,6 @@ namespace VargheseJoshua.Lab6
                 sp[i].Name = (Globals.superpositions)i;
             }
             tile = this.gameObject;
-
         }
 
         public void Collapse()

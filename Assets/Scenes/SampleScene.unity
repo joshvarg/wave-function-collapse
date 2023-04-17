@@ -376,7 +376,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rows: 3
-  columns: 3
+  columns: 2
 --- !u!4 &1183796028
 Transform:
   m_ObjectHideFlags: 0
