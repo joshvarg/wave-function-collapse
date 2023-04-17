@@ -12,7 +12,8 @@ namespace VargheseJoshua.Lab6
         [SerializeField] int columns = 2;
         public Cell[,] cellgrid;
         // Start is called before the first frame update
-        void Start()
+        //void Start()
+        public void Init()
         {
             cellgrid = new Cell[rows, columns];
             // Initialize left to right, row by row.
@@ -23,8 +24,8 @@ namespace VargheseJoshua.Lab6
                     var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     c.transform.position = new Vector3(i, 0, j);
                     var tile = c.AddComponent<Cell>();
+                    tile.Init();
                     cellgrid[i, j] = tile;
-                    //cellgrid[i,j] = new Cell((i,j));
                 }
             }
         }

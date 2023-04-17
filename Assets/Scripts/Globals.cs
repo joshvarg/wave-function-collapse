@@ -15,14 +15,14 @@ namespace VargheseJoshua.Lab6
             {superpositions.water, (superpositions.sand, superpositions.ocean) },
             {superpositions.ocean, (superpositions.water, superpositions.water) },
         };
-        public static string[] Super = new string[]
+        /*public static string[] Super = new string[]
         {
             "forest",
             "land",
             "sand",
             "water",
             "ocean"
-        };
+        };*/
         public enum superpositions
         {
             forest,

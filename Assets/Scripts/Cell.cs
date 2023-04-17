@@ -10,8 +10,9 @@ namespace VargheseJoshua.Lab6
         public int entropy = 5;
 
         [SerializeField]
-        public Globals.superpositions finalState = Globals.superpositions.super;
-        void Awake()
+        public Globals.superpositions currentState = Globals.superpositions.super;
+        //void Awake()
+        public void Init()
         {
             InitializeConstraints();
             Debug.Log("spcount"+ sp.Count);
@@ -33,7 +34,7 @@ namespace VargheseJoshua.Lab6
 
             int rand = Globals.RNG.Next(0, choose.Count);
             Debug.Log(rand);
-            finalState = choose[rand].Name;
+            currentState = choose[rand].Name;
             entropy = 6;
         }
 
