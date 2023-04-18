@@ -5,12 +5,14 @@ namespace VargheseJoshua.Lab6
 {
     public class Constraint
     {
-        public Globals.superpositions Name;
-        public bool isPossible;
+        public Globals.superpositions state;
+        public Constraint(Globals.superpositions n) {
+            state = n;
+        }
 
-        public Constraint(Globals.superpositions n, bool isp) {
-            Name = n;
-            isPossible = isp;
+        public override string ToString()
+        {
+            return state.ToString();
         }
     }
 }

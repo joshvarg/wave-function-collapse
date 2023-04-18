@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 namespace VargheseJoshua.Lab6
 {
     public class Cell : MonoBehaviour
     {
-        public List<Constraint> sp = new List<Constraint>(5);
+        public List<Constraint> sp = new List<Constraint>(Globals.MAX_STATES);
 
-        public int entropy = 5;
+        public bool stable = false;
+
+        public int entropy = Globals.MAX_STATES;
 
         private GameObject tile;
 
@@ -24,47 +27,32 @@ namespace VargheseJoshua.Lab6
         public void Init()
         {
             InitializeConstraints();
-            Debug.Log("spcount"+ sp.Count);
-            for (int i = 0; i < sp.Count; i++)
-            {
-                sp[i].isPossible = true;
-                sp[i].Name = (Globals.superpositions)i;
-            }
+            //Debug.Log("spcount"+ sp.Count);
             tile = this.gameObject;
         }
 
         public void Collapse()
         {
-            List<Constraint> choose = new List<Constraint>();
-            foreach(Constraint c in sp)
-            {
-                if (c.isPossible) { choose.Add(c); }
-            }
+            int rand = Globals.RNG.Next(0, sp.Count);
+            //Debug.Log(rand);
+            //Debug.Log(sp.ToCommaSeparatedString());
+            currentState = sp[rand].state;
+            var x = sp[rand];
+            //entropy = 6;
+            sp.Clear();
+            sp.Add(x);
 
-            int rand = Globals.RNG.Next(0, choose.Count);
-            Debug.Log(rand);
-            currentState = choose[rand].Name;
-            entropy = 6;
+            stable = true;
 
             tile.GetComponent<Renderer>().material.SetColor("_Color", Globals.Colors[currentState]);
         }
 
-        public void UpdateEntropy()
-        {
-            foreach(Constraint c in sp)
-            {
-                if (!c.isPossible)
-                {
-                    entropy--;
-                }
-            }
-        }
 
         private void InitializeConstraints()
         {
-            for(int i = 0; i < 5; i++)
+            for(int i = 0; i < Globals.MAX_STATES; i++)
             {
-                sp.Add(new Constraint((Globals.superpositions)i, true));
+                sp.Add(new Constraint((Globals.superpositions)i));
             }
         }
     }
