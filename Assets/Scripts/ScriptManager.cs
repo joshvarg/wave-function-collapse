@@ -25,7 +25,7 @@ namespace VargheseJoshua.Lab6
             mostRecentCollapse = grid.cellgrid[0, 0];
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             //Debug.Log(done);
             if (!done)
