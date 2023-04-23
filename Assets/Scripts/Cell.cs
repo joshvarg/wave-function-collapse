@@ -6,6 +6,7 @@ namespace VargheseJoshua.Lab6
 {
     public class Cell : MonoBehaviour
     {
+        [SerializeField] public string splist;
         public List<Constraint> sp = new List<Constraint>(Globals.MAX_STATES);
 
         public bool stable = false;

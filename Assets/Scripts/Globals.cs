@@ -55,6 +55,6 @@ namespace VargheseJoshua.Lab6
 
         public const int MAX_STATES = 7;
 
-        public static System.Random RNG = new System.Random();
+        public static System.Random RNG = new System.Random(018490934);
     }
 }

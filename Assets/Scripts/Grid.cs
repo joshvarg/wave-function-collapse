@@ -10,11 +10,13 @@ namespace VargheseJoshua.Lab6
     {
         [SerializeField] public int rows = 3;
         [SerializeField] public int columns = 2;
+        private Transform gridobject;
         public Cell[,] cellgrid;
         // Start is called before the first frame update
         //void Start()
-        public void Init()
+        public void Init(Transform gO)
         {
+            gridobject = gO;
             cellgrid = new Cell[columns, rows];
             // Initialize left to right, row by row.
             for (int i = 0; i < columns; i++)
@@ -22,6 +24,7 @@ namespace VargheseJoshua.Lab6
                 for (int j = 0; j < rows; j++)
                 {
                     var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    c.transform.SetParent(gridobject);
                     c.transform.position = new Vector3(i, 0, j);
                     var tile = c.AddComponent<Cell>();
                     tile.position = (i, j);
@@ -29,12 +32,6 @@ namespace VargheseJoshua.Lab6
                     cellgrid[i, j] = tile;
                 }
             }
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }

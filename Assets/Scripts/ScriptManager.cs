@@ -13,16 +13,23 @@ namespace VargheseJoshua.Lab6
     {
         [SerializeField] Grid grid;
         [SerializeField] Transform cam;
-        private Cell mostRecentCollapse;
+        [SerializeField] Transform gridObject;
+        public Cell mostRecentCollapse;
+        public (int, int) contraposition = (0,0);
+        public bool restart = false;
         private bool done = false;
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
-            grid.Init();
+            Initialize(contraposition);
+        }
+        private void Initialize((int,int) initialcollapse)
+        {
+            grid.Init(gridObject);
             cam.position = new Vector3(grid.columns / 2, (grid.columns+grid.rows)/2, grid.rows / 2);
             UpdateNeighbors(grid);
-            grid.cellgrid[0, 0].Collapse();
-            mostRecentCollapse = grid.cellgrid[0, 0];
+            grid.cellgrid[initialcollapse.Item1, initialcollapse.Item2].Collapse();
+            mostRecentCollapse = grid.cellgrid[0,0];
         }
 
         private void Update()
@@ -30,12 +37,27 @@ namespace VargheseJoshua.Lab6
             //Debug.Log(done);
             if (!done)
             {
+
                 foreach (var c in grid.cellgrid)
                 {
+                    /*if(mostRecentCollapse.position == (30, 5) && c.position==(30,5)) { 
+                        Debug.Log("STOP"); 
+                    }*/
                     //Debug.Log(c.position);
                     UpdateConstraints(c);
                 }
-                done = CollapseLowestEntropy();
+                if (restart)
+                {
+                    Destroy(gridObject.gameObject);
+                    gridObject = new GameObject("GridObject").transform;
+                    Initialize(contraposition);
+                    restart = false;
+                }
+                else
+                {
+                    done = CollapseLowestEntropy();
+
+                }
             }
         }
 
@@ -79,6 +101,12 @@ namespace VargheseJoshua.Lab6
                     }
                 }
             }
+            if(update.Count <= 0)
+            {
+                Debug.Log("CONTRADICTION FOUND at "+neighbor.position+" restarting!");
+                contraposition = neighbor.position;
+                restart = true;
+            }
             return update.Distinct().ToList();
         }
         private void UpdateConstraints(Cell c)
@@ -86,6 +114,7 @@ namespace VargheseJoshua.Lab6
             if (c.north != null)
             {
                 c.north.sp = FindAllowedConstraints(c, c.north);
+                
                 //Debug.Log("n"+c.north.sp.ToCommaSeparatedString());
             }
             if (c.south != null)
@@ -103,6 +132,7 @@ namespace VargheseJoshua.Lab6
                 c.west.sp = FindAllowedConstraints(c, c.west);
                 //Debug.Log("w"+c.west.sp.ToCommaSeparatedString());
             }
+            c.splist = c.sp.ToCommaSeparatedString();
             c.entropy = c.sp.Count;
             //Debug.Log("entropy: " + c.entropy);
 
@@ -111,10 +141,11 @@ namespace VargheseJoshua.Lab6
 
         private bool CollapseLowestEntropy()
         {
+            //Cell lowest = grid.cellgrid[Globals.RNG.Next(0, grid.rows), Globals.RNG.Next(0, grid.columns)];
+            Cell lowest = grid.cellgrid[0, 0];
             int min = Globals.MAX_STATES;
             //int iteration = 0;
             bool finished = true;
-            Cell lowest = grid.cellgrid[0,0];
             foreach(Cell c in grid.cellgrid)
             {
                 if (c.stable)
@@ -129,6 +160,7 @@ namespace VargheseJoshua.Lab6
                 }
             }
             lowest.Collapse();
+            mostRecentCollapse= lowest;
             //Debug.Log("end of collapse run" + finished);
             return finished;
         }
