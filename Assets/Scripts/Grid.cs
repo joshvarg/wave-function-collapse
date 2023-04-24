@@ -10,7 +10,7 @@ namespace VargheseJoshua.Lab6
     {
         [SerializeField] public int rows = 3;
         [SerializeField] public int columns = 2;
-        private Transform gridobject;
+        public Transform gridobject;
         public Cell[,] cellgrid;
         // Start is called before the first frame update
         //void Start()
@@ -23,8 +23,7 @@ namespace VargheseJoshua.Lab6
             {
                 for (int j = 0; j < rows; j++)
                 {
-                    var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    c.name = "x:"+i + ", " + "z:"+j;
+                    var c = new GameObject("x:"+i+", z:"+j);
                     c.transform.SetParent(gridobject);
                     c.transform.position = new Vector3(i, 0, j);
                     var tile = c.AddComponent<Cell>();
@@ -33,6 +32,7 @@ namespace VargheseJoshua.Lab6
                     cellgrid[i, j] = tile;
                 }
             }
+            gO.Translate(new Vector3(-rows/2, 0, -columns/2));
         }
     }
 }

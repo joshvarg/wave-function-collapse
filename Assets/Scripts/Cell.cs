@@ -36,12 +36,17 @@ namespace VargheseJoshua.Lab6
             InitializeConstraints();
             //Debug.Log("spcount"+ sp.Count);
             tile = this.gameObject;
-            tile.GetComponent<Renderer>().material.SetColor("_Color", Color.white);
+            //tile.GetComponent<Renderer>().material.SetColor("_Color", Color.white);
             sc = GameObject.Find("Manager").GetComponent<ScriptManager>();
         }
 
         public void Collapse()
         {
+            sc.UpdateConstraints(this);
+
+            if (position == (32, 36)) { 
+                Debug.Log("stop"); 
+            }
             int rand = Globals.RNG.Next(0, sp.Count);
             //Debug.Log(rand);
             //Debug.Log(sp.ToCommaSeparatedString());
@@ -53,7 +58,9 @@ namespace VargheseJoshua.Lab6
 
             stable = true;
 
-            tile.GetComponent<Renderer>().material.SetColor("_Color", Globals.Colors[currentState]);
+            var obj = Resources.Load("Prefabs/" + currentState);
+            Instantiate(obj, tile.transform);
+            //tile.GetComponent<Renderer>().material.SetColor("_Color", Globals.Colors[currentState]);
             sc.UpdateConstraints(this);
         }
 
@@ -65,38 +72,39 @@ namespace VargheseJoshua.Lab6
                 sp.Add(new Constraint((Globals.superpositions)i));
             }
         }
-        public void ResetNeighbors()
+        public void ResetNeighbors(int i)
         {
+            //if (i > 9) { return; }
             if (!north.IsUnityNull())
             {
                 north.Init();
-                if (!north.north.IsUnityNull())
+                if (i<Globals.RESET_DEPTH)
                 {
-                    north.north.Init();
+                    north.ResetNeighbors(++i);
                 }
             }
             if (!south.IsUnityNull())
             {
                 south.Init();
-                if (!south.south.IsUnityNull())
+                if (i< Globals.RESET_DEPTH)
                 {
-                    south.south.Init();
+                    south.ResetNeighbors(++i);
                 }
             }
             if (!east.IsUnityNull())
             {
                 east.Init();
-                if (!east.east.IsUnityNull())
+                if (i< Globals.RESET_DEPTH)
                 {
-                    east.east.Init();
+                    east.ResetNeighbors(++i);
                 }
             }
             if (!west.IsUnityNull())
             {
                 west.Init();
-                if (!west.west.IsUnityNull())
+                if (i<Globals.RESET_DEPTH)
                 {
-                    west.west.Init();
+                    west.ResetNeighbors(++i);
                 }
             }
         }

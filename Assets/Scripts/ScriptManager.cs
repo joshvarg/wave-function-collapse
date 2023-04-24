@@ -12,10 +12,12 @@ namespace VargheseJoshua.Lab6
     public class ScriptManager : MonoBehaviour
     {
         [SerializeField] Grid grid;
-        [SerializeField] Transform cam;
+        [SerializeField] Transform Ocam;
+        [SerializeField] Transform Pcam;
         [SerializeField] Transform gridObject;
         public Cell mostRecentCollapse;
         public (int, int) contraposition = (0,0);
+        public (int, int) start;
         public bool restart = false;
         private bool done = false;
 
@@ -24,15 +26,23 @@ namespace VargheseJoshua.Lab6
 
         private Cell impossible;
 
+        public void Clear()
+        {
+            Destroy(gridObject.gameObject);
+            var x = new GameObject("GridObject");
+            gridObject = x.transform;
+        }
         // Start is called before the first frame update
         private void Start()
         {
-            Initialize(contraposition);
+            Pcam.transform.position= new Vector3(-grid.rows/2, 15, -grid.columns/2);
+            start = (grid.rows / 2, grid.columns / 2);
+            Initialize(start);
         }
         private void Initialize((int,int) initialcollapse)
         {
             grid.Init(gridObject);
-            cam.position = new Vector3(grid.columns / 2, (grid.columns+grid.rows)/2, grid.rows / 2);
+            //cam.position = new Vector3(grid.columns / 2, (grid.columns+grid.rows)/2, grid.rows / 2);
             UpdateNeighbors(grid);
             grid.cellgrid[initialcollapse.Item1, initialcollapse.Item2].Collapse();
             mostRecentCollapse = grid.cellgrid[0,0];
@@ -40,6 +50,7 @@ namespace VargheseJoshua.Lab6
 
         private void LateUpdate()
         {
+            Pcam.RotateAround(Vector3.zero, Vector3.up, 2f * Time.deltaTime);
             /*entropystore = new Dictionary<int, List<Cell>>() {
             { 1, new List<Cell>() }, {2, new List<Cell>() }, {3, new List<Cell>()}, {4, new List<Cell>() }, {5, new List<Cell>() }, { 6, new List<Cell>() }, {7, new List<Cell>()},
         };*/
@@ -61,7 +72,7 @@ namespace VargheseJoshua.Lab6
                 if (restart)
                 {
                     impossible.Init();
-                    impossible.ResetNeighbors();
+                    impossible.ResetNeighbors(0);
                     restart = false;
                     /*Destroy(gridObject.gameObject);
                     gridObject = new GameObject("GridObject").transform;
@@ -73,6 +84,12 @@ namespace VargheseJoshua.Lab6
                     CollapseLowestEntropy();
 
                 }
+            }
+            else
+            {
+                Clear();
+                Initialize(start);
+                done = false;
             }
             //}
         }
@@ -161,6 +178,11 @@ namespace VargheseJoshua.Lab6
             c.splist = c.sp.ToCommaSeparatedString();
             c.entropy = c.sp.Count;
             //Debug.Log("entropy: " + c.entropy);
+
+
+
+
+
 
             //Debug.Log(north.sp.ToCommaSeparatedString());
         }
@@ -260,11 +282,11 @@ namespace VargheseJoshua.Lab6
             return finished;
         }*/
 
-        public void AddToPool(Cell c)
+        /*public void AddToPool(Cell c)
         {
             if (c.stable)
             {
-                /*EAST ADDS*/
+                *//*EAST ADDS*//*
 
                 if(!c.east.IsUnityNull() && !c.east.stable)
                 {
@@ -279,7 +301,7 @@ namespace VargheseJoshua.Lab6
                     }
 
                 }
-                /*WEST ADDS*/
+                *//*WEST ADDS*//*
                 //if (c.west.IsUnityNull() && !c.west.stable)
                 if (!c.west.IsUnityNull() && !c.west.stable)
                 {
@@ -294,7 +316,7 @@ namespace VargheseJoshua.Lab6
                     }
 
                 }
-                /*NORTH ADDS*/
+                *//*NORTH ADDS*//*
 
                 if (!c.north.IsUnityNull() && !c.north.stable)
                 {
@@ -308,7 +330,7 @@ namespace VargheseJoshua.Lab6
                         }
                     }
                 }
-                /*SOUTH ADDS*/
+                *//*SOUTH ADDS*//*
 
                 if (!c.south.IsUnityNull() && !c.south.stable)
                 {
@@ -323,7 +345,7 @@ namespace VargheseJoshua.Lab6
                     }
                 }
             }
-        }
+        }*/
         private void UpdateEntropyStore(int entropy, Cell cell)
         {
             entropystore[entropy].Add(cell);
