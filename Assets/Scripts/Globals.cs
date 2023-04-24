@@ -18,7 +18,7 @@ namespace VargheseJoshua.Lab6
             {superpositions.water, (superpositions.sand, superpositions.ocean) },
             {superpositions.ocean, (superpositions.water, superpositions.deepocean) },
             {superpositions.deepocean, (superpositions.ocean, superpositions.ocean) },
-            //{superpositions.stone, (superpositions.stone, superpositions.stone) },
+            //{superpositions.stone, (superpositions.forest, superpositions.deepocean) },
         };
 
         public static Dictionary<superpositions, Color32> Colors = new Dictionary<superpositions, Color32>()
@@ -55,6 +55,6 @@ namespace VargheseJoshua.Lab6
 
         public const int MAX_STATES = 7;
 
-        public static System.Random RNG = new System.Random(018490934);
+        public static System.Random RNG = new System.Random(12);
     }
 }

@@ -18,6 +18,12 @@ namespace VargheseJoshua.Lab6
         public (int, int) contraposition = (0,0);
         public bool restart = false;
         private bool done = false;
+
+        private Dictionary<int, List<Cell>> entropystore;
+        private List<Cell> pool = new List<Cell>();
+
+        private Cell impossible;
+
         // Start is called before the first frame update
         private void Start()
         {
@@ -32,33 +38,43 @@ namespace VargheseJoshua.Lab6
             mostRecentCollapse = grid.cellgrid[0,0];
         }
 
-        private void Update()
+        private void LateUpdate()
         {
+            /*entropystore = new Dictionary<int, List<Cell>>() {
+            { 1, new List<Cell>() }, {2, new List<Cell>() }, {3, new List<Cell>()}, {4, new List<Cell>() }, {5, new List<Cell>() }, { 6, new List<Cell>() }, {7, new List<Cell>()},
+        };*/
             //Debug.Log(done);
+            /*if (!done)
+            {*/
+            //var copy = new List<Cell>(pool);
+            /*foreach (var c in grid.cellgrid.Cast<Cell>().ToArray())
+            {
+                *//*if(mostRecentCollapse.position == (30, 5) && c.position==(30,5)) { 
+                    Debug.Log("STOP"); 
+                }*//*
+                //Debug.Log(c.position);
+                UpdateConstraints(c);
+                AddToPool(c);
+            }*/
             if (!done)
             {
-
-                foreach (var c in grid.cellgrid)
-                {
-                    /*if(mostRecentCollapse.position == (30, 5) && c.position==(30,5)) { 
-                        Debug.Log("STOP"); 
-                    }*/
-                    //Debug.Log(c.position);
-                    UpdateConstraints(c);
-                }
                 if (restart)
                 {
-                    Destroy(gridObject.gameObject);
+                    impossible.Init();
+                    impossible.ResetNeighbors();
+                    restart = false;
+                    /*Destroy(gridObject.gameObject);
                     gridObject = new GameObject("GridObject").transform;
                     Initialize(contraposition);
-                    restart = false;
+                    restart = false;*/
                 }
                 else
                 {
-                    done = CollapseLowestEntropy();
+                    CollapseLowestEntropy();
 
                 }
             }
+            //}
         }
 
         private void UpdateNeighbors(Grid g)
@@ -86,50 +102,60 @@ namespace VargheseJoshua.Lab6
 
         private List<Constraint> FindAllowedConstraints(Cell host, Cell neighbor)
         {
-            var update = new List<Constraint>();
-            foreach (Constraint con in host.sp)
+            if (!neighbor.stable)//added
             {
-                foreach (Constraint ncon in neighbor.sp)
+                var update = new List<Constraint>();
+                foreach (Constraint con in host.sp)
                 {
-                    if (Globals.Rules[con.state].L == ncon.state //equals left
-                        || Globals.Rules[con.state].R == ncon.state// OR right
-                        || con.state == ncon.state)// OR the same
+                    foreach (Constraint ncon in neighbor.sp)
                     {
-                        //Debug.Log(Globals.Rules[con.state]);
-                        //Debug.Log("cell state: "+con.state+"  north state: "+ncon.state);
-                        update.Add(ncon);
+                        if (Globals.Rules[con.state].L == ncon.state //equals left
+                            || Globals.Rules[con.state].R == ncon.state// OR right
+                            || con.state == ncon.state)// OR the same
+                        {
+                            //Debug.Log(Globals.Rules[con.state]);
+                            //Debug.Log("cell state: "+con.state+"  north state: "+ncon.state);
+                            update.Add(ncon);
+                        }
                     }
                 }
+                if (update.Count <= 0)
+                {
+                    Debug.Log("CONTRADICTION FOUND at " + neighbor.position + " restarting!");
+                    contraposition = neighbor.position;
+                    impossible = neighbor;
+                    restart = true;
+                }
+                return update.Distinct().ToList();
             }
-            if(update.Count <= 0)
-            {
-                Debug.Log("CONTRADICTION FOUND at "+neighbor.position+" restarting!");
-                contraposition = neighbor.position;
-                restart = true;
-            }
-            return update.Distinct().ToList();
+            return neighbor.sp;//added
+            
         }
-        private void UpdateConstraints(Cell c)
+        public void UpdateConstraints(Cell c)
         {
-            if (c.north != null)
+            if (!c.north.IsUnityNull())
             {
                 c.north.sp = FindAllowedConstraints(c, c.north);
+                c.north.entropy = c.north.sp.Count;
                 
                 //Debug.Log("n"+c.north.sp.ToCommaSeparatedString());
             }
-            if (c.south != null)
+            if (!c.south.IsUnityNull())
             {
                 c.south.sp = FindAllowedConstraints(c, c.south);
+                c.south.entropy = c.south.sp.Count;
                 //Debug.Log("s"+c.south.sp.ToCommaSeparatedString());
             }
-            if (c.east != null)
+            if (!c.east.IsUnityNull())
             {
                 c.east.sp = FindAllowedConstraints(c, c.east);
+                c.east.entropy = c.east.sp.Count;
                 //Debug.Log("e"+c.east.sp.ToCommaSeparatedString());
             }
-            if (c.west != null)
+            if (!c.west.IsUnityNull())
             {
                 c.west.sp = FindAllowedConstraints(c, c.west);
+                c.west.entropy = c.west.sp.Count;
                 //Debug.Log("w"+c.west.sp.ToCommaSeparatedString());
             }
             c.splist = c.sp.ToCommaSeparatedString();
@@ -139,30 +165,168 @@ namespace VargheseJoshua.Lab6
             //Debug.Log(north.sp.ToCommaSeparatedString());
         }
 
-        private bool CollapseLowestEntropy()
+        private List<Cell> CollectLowestEntropy()
+        {
+            int min = Globals.MAX_STATES;
+            List<Cell> temp = new List<Cell>();
+            foreach(Cell c in grid.cellgrid)
+            {
+                if (c.stable || c.entropy > min)
+                {
+                    continue;
+                } else
+                {
+                    if (c.entropy < min)
+                    {
+                        min = c.entropy;
+                        temp.Clear();
+                    }
+                    if(c.entropy == min)
+                    {
+                        temp.Add(c);
+                    }
+                }
+
+            }
+            
+            //Debug.Log("entropy" + temp[0].entropy);
+            return temp;
+        }
+
+        private void CollapseLowestEntropy()
+        {
+            var x = CollectLowestEntropy();
+
+            if (x.Count == 0) { done = true; }
+
+            if (!done)
+            {
+                var rand = Globals.RNG.Next() % x.Count;
+                int iterator = 0;
+                Cell chosen = x[rand];
+                while (chosen.StableNeighbors() < 4 && iterator <= x.Count)
+                {
+                    rand = rand++ % x.Count;
+                    chosen = x[rand];
+                    iterator++;
+                }
+                if (chosen.entropy > 0)
+                {
+                    chosen.Collapse();
+                }
+                else
+                {
+                    impossible = chosen;
+                    restart = true;
+                }
+            }
+        }
+
+        /*private bool CollapseLowestEntropy()
         {
             //Cell lowest = grid.cellgrid[Globals.RNG.Next(0, grid.rows), Globals.RNG.Next(0, grid.columns)];
             Cell lowest = grid.cellgrid[0, 0];
+            if(pool.Count> 0) { lowest = pool[Globals.RNG.Next() % pool.Count]; }
             int min = Globals.MAX_STATES;
             //int iteration = 0;
             bool finished = true;
-            foreach(Cell c in grid.cellgrid)
+            foreach (Cell c in pool)
             {
                 if (c.stable)
                 {
                     //Debug.Log(iteration +" " + finished);
                     //iteration++;
                     continue;
-                } else if(c.entropy < min) {
+                } else if (c.entropy < min) {
                     finished = finished && c.stable;
                     min = c.entropy;
                     lowest = c;
+                    //UpdateEntropyStore(min, lowest);
                 }
             }
+            *//*if(!finished)
+            {
+                Debug.Log(entropystore.ToCommaSeparatedString());
+                var x = entropystore[min];
+                var r = Globals.RNG.Next(0, x.Count);
+                var picked = x[r];
+                picked.Collapse();
+                mostRecentCollapse = picked;
+                x.Remove(picked); 
+            }*//*
             lowest.Collapse();
             mostRecentCollapse= lowest;
             //Debug.Log("end of collapse run" + finished);
             return finished;
+        }*/
+
+        public void AddToPool(Cell c)
+        {
+            if (c.stable)
+            {
+                /*EAST ADDS*/
+
+                if(!c.east.IsUnityNull() && !c.east.stable)
+                {
+                    pool.Add(c.east);
+                    if (!c.east.east.IsUnityNull() && !c.east.east.stable)
+                    {
+                        pool.Add(c.east.east);
+                        if (!c.east.east.east.IsUnityNull() && !c.east.east.east.stable)
+                        {
+                            pool.Add(c.east.east.east);
+                        }
+                    }
+
+                }
+                /*WEST ADDS*/
+                //if (c.west.IsUnityNull() && !c.west.stable)
+                if (!c.west.IsUnityNull() && !c.west.stable)
+                {
+                    pool.Add(c.west);
+                    if (!c.west.west.IsUnityNull() && !c.west.west.stable)
+                    {
+                        pool.Add(c.west.west);
+                        if (!c.west.west.west.IsUnityNull() && !c.west.west.west.stable)
+                        {
+                            pool.Add(c.west.west.west);
+                        }
+                    }
+
+                }
+                /*NORTH ADDS*/
+
+                if (!c.north.IsUnityNull() && !c.north.stable)
+                {
+                    pool.Add(c.north);
+                    if (!c.north.north.IsUnityNull() && !c.north.north.stable)
+                    {
+                        pool.Add(c.north.north);
+                        if (!c.north.north.north.IsUnityNull() && !c.north.north.north.stable)
+                        {
+                            pool.Add(c.north.north.north);
+                        }
+                    }
+                }
+                /*SOUTH ADDS*/
+
+                if (!c.south.IsUnityNull() && !c.south.stable)
+                {
+                    pool.Add(c.south);
+                    if (!c.south.south.IsUnityNull() && !c.south.south.stable)
+                    {
+                        pool.Add(c.south.south);
+                        if (!c.south.south.south.IsUnityNull() && !c.south.south.south.stable)
+                        {
+                            pool.Add(c.south.south.south);
+                        }
+                    }
+                }
+            }
+        }
+        private void UpdateEntropyStore(int entropy, Cell cell)
+        {
+            entropystore[entropy].Add(cell);
         }
     }
 }

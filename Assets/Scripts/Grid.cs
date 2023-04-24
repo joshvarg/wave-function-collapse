@@ -24,6 +24,7 @@ namespace VargheseJoshua.Lab6
                 for (int j = 0; j < rows; j++)
                 {
                     var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    c.name = "x:"+i + ", " + "z:"+j;
                     c.transform.SetParent(gridobject);
                     c.transform.position = new Vector3(i, 0, j);
                     var tile = c.AddComponent<Cell>();
