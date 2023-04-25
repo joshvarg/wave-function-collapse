@@ -1,8 +1,3 @@
-# wave-function-collapse
-Implementation of Wave Function Collapse Algorithm within Unity, made for Lab 6 in CSE 3541 @ OSU
+# Wave Function Collapse Algorithm
 
-Implementation 1:
-
-Wave function collapse using color tileset
-
-
+An implemenation of WFC for Lab 6 of CSE 3541 @ The Ohio State University
