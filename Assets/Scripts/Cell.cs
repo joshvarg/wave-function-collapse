@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,21 +8,15 @@ namespace VargheseJoshua.Lab6
         [SerializeField] public string splist;
         [SerializeField] private ScriptManager sc;
         public List<Constraint> sp;
-
         public bool stable = false;
         public bool atEdge = true;
-
         public int entropy;
-
         private GameObject tile;
-
         public (int x, int z) position;
-
         public Cell north;
         public Cell south;
         public Cell west;
         public Cell east;
-
         [SerializeField]
         public Globals.superpositions currentState;
         //void Awake()
@@ -34,9 +27,7 @@ namespace VargheseJoshua.Lab6
             sp = new List<Constraint>(Globals.MAX_STATES);
             currentState = Globals.superpositions.super;
             InitializeConstraints();
-            //Debug.Log("spcount"+ sp.Count);
             tile = this.gameObject;
-            //tile.GetComponent<Renderer>().material.SetColor("_Color", Color.white);
             sc = GameObject.Find("Manager").GetComponent<ScriptManager>();
         }
 
@@ -48,8 +39,6 @@ namespace VargheseJoshua.Lab6
                 Debug.Log("stop"); 
             }
             int rand = Globals.RNG.Next(0, sp.Count);
-            //Debug.Log(rand);
-            //Debug.Log(sp.ToCommaSeparatedString());
             currentState = sp[rand].state;
             var x = sp[rand];
             //entropy = 6;
@@ -60,7 +49,6 @@ namespace VargheseJoshua.Lab6
 
             var obj = Resources.Load("Prefabs/" + currentState);
             Instantiate(obj, tile.transform);
-            //tile.GetComponent<Renderer>().material.SetColor("_Color", Globals.Colors[currentState]);
             sc.UpdateConstraints(this);
         }
 
@@ -74,7 +62,6 @@ namespace VargheseJoshua.Lab6
         }
         public void ResetNeighbors(int i)
         {
-            //if (i > 9) { return; }
             if (!north.IsUnityNull())
             {
                 north.Init();
@@ -129,41 +116,5 @@ namespace VargheseJoshua.Lab6
             }
             return num;
         }
-        private void UpdateEdge()
-        {
-            bool temp = true;
-
-            if (!north.IsUnityNull())
-            {
-                temp = temp && (north.sp.Count < Globals.MAX_STATES);
-            }
-            if (!south.IsUnityNull())
-            {
-                temp = temp && (south.sp.Count < Globals.MAX_STATES);
-            }
-            if (!east.IsUnityNull())
-            {
-                temp = temp && (east.sp.Count < Globals.MAX_STATES);
-            }
-            if (!west.IsUnityNull())
-            {
-                temp = temp && (west.sp.Count < Globals.MAX_STATES);
-            }
-
-
-            atEdge = temp;
-        }
-
-        /*void Update()
-        {
-            UpdateEdge();
-            Debug.Log(position + "at edge?: "+ atEdge);
-            if (atEdge)
-            {
-                Debug.Log("here");
-                sc.UpdateConstraints(this);
-                sc.AddToPool(this);
-            }
-        }*/
     }
 }
